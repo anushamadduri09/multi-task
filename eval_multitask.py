@@ -195,8 +195,8 @@ def evaluate(run_dir):
                 #while True:
                 print('Running loop')
                 eval_once(saver, summary_writer, summary_op, logits, labels, num_eval)
-                if FLAGS.run_once:
-                    break
+                #if FLAGS.run_once:
+                #    break
                 time.sleep(FLAGS.eval_interval_secs)
 
                 
