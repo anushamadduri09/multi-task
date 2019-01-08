@@ -192,12 +192,12 @@ def evaluate(run_dir):
                     print('Running %s' % sequence)
                     eval_once(saver, summary_writer, summary_op, logits, labels, num_eval, requested_step)
             else:
-                while True:
-                    print('Running loop')
-                    eval_once(saver, summary_writer, summary_op, logits, labels, num_eval)
-                    if FLAGS.run_once:
-                        break
-                    time.sleep(FLAGS.eval_interval_secs)
+                #while True:
+                print('Running loop')
+                eval_once(saver, summary_writer, summary_op, logits, labels, num_eval)
+                if FLAGS.run_once:
+                    break
+                time.sleep(FLAGS.eval_interval_secs)
 
                 
 def main(argv=None):  # pylint: disable=unused-argument
