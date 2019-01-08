@@ -162,6 +162,42 @@ def eval_once(saver, summary_writer, summary_op, logits, labels, num_eval, reque
         coord.request_stop()
         coord.join(threads, stop_grace_period_secs=10)
 
+def evaluate(run_dir):
+    with tf.Graph().as_default() as g:
+        input_file = os.path.join(FLAGS.train_dir, 'md.json')
+        with open(input_file, 'r') as f:
+            md = json.load(f)
+
+        eval_data = FLAGS.eval_data == 'valid'
+        num_eval = md['%s_counts' % FLAGS.eval_data]
+
+        model_fn = select_model(FLAGS.model_type)
+
+
+        with tf.device(FLAGS.device_id):
+            print('Executing on %s' % FLAGS.device_id)
+            images, labels_age, labels_gender, labels_emotion, _ = inputs(FLAGS.train_dir, FLAGS.batch_size, FLAGS.image_size, train=not eval_data, num_preprocess_threads=FLAGS.num_preprocess_threads)
+            logits_age, logits_gender, logits_emotion = model_fn(md['nlabels_age'], md['nlabels_gender'], md['nlabels_emotion'], images, 1, False)
+            summary_op = tf.summary.merge_all()
+
+            logits = (logits_age, logits_gender, logits_emotion)
+            labels = (labels_age, labels_gender, labels_emotion)
+            
+            summary_writer = tf.summary.FileWriter(run_dir, g)
+            saver = tf.train.Saver()
+            
+            if FLAGS.requested_step_seq:
+                sequence = FLAGS.requested_step_seq.split(',')
+                for requested_step in sequence:
+                    print('Running %s' % sequence)
+                    eval_once(saver, summary_writer, summary_op, logits, labels, num_eval, requested_step)
+            else:
+                while True:
+                    print('Running loop')
+                    eval_once(saver, summary_writer, summary_op, logits, labels, num_eval)
+                    if FLAGS.run_once:
+                        break
+                    time.sleep(FLAGS.eval_interval_secs)
 
                 
 def main(argv=None):  # pylint: disable=unused-argument
