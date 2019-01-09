@@ -130,27 +130,36 @@ def eval_once(saver, summary_writer, summary_op, logits, labels, num_eval, reque
                 step += 1
 
             #computed the accuracy
-            if(mloss == 0):
+            if(FLAGS.mloss == 0):
                 age_accuracy = true_age_count1 / total_sample_count
                 gender_accuracy = true_gender_count1 / total_sample_count
                 emotion_accuracy = true_emotion_count1 / total_sample_count
                 print('%s: age accuracy @ 1 = %.3f (%d/%d)' % (datetime.now(), age_accuracy, true_age_count1, total_sample_count))
                 print('%s: gender accuracy @ 1 = %.3f (%d/%d)' % (datetime.now(), gender_accuracy, true_gender_count1, total_sample_count))
                 print('%s: emotion accuracy @ 1 = %.3f (%d/%d)' % (datetime.now(), emotion_accuracy, true_emotion_count1, total_sample_count))
-            elif(mloss == 1):
+            elif(FLAGS.mloss == 1):
                 age_accuracy = true_age_count1 / total_sample_count
                 gender_accuracy = true_gender_count1 / total_sample_count
                 print('%s: age accuracy @ 1 = %.3f (%d/%d)' % (datetime.now(), age_accuracy, true_age_count1, total_sample_count))
                 print('%s: gender accuracy @ 1 = %.3f (%d/%d)' % (datetime.now(), gender_accuracy, true_gender_count1, total_sample_count))
-            elif(mloss == 2):
+            elif(FLAGS.mloss == 2):
                 age_accuracy = true_age_count1 / total_sample_count
                 emotion_accuracy = true_emotion_count1 / total_sample_count
                 print('%s: age accuracy @ 1 = %.3f (%d/%d)' % (datetime.now(), age_accuracy, true_age_count1, total_sample_count))
                 print('%s: emotion accuracy @ 1 = %.3f (%d/%d)' % (datetime.now(), emotion_accuracy, true_emotion_count1, total_sample_count))
-            elif(mloss == 3):
+            elif(FLAGS.mloss == 3):
                 gender_accuracy = true_gender_count1 / total_sample_count
                 emotion_accuracy = true_emotion_count1 / total_sample_count
                 print('%s: gender accuracy @ 1 = %.3f (%d/%d)' % (datetime.now(), gender_accuracy, true_gender_count1, total_sample_count))
+                print('%s: emotion accuracy @ 1 = %.3f (%d/%d)' % (datetime.now(), emotion_accuracy, true_emotion_count1, total_sample_count))
+            elif(FLAGS.mloss == 4):
+                age_accuracy = true_age_count1 / total_sample_count
+                print('%s: age accuracy @ 1 = %.3f (%d/%d)' % (datetime.now(), age_accuracy, true_age_count1, total_sample_count))
+            elif(FLAGS.mloss == 5):
+                gender_accuracy = true_gender_count1 / total_sample_count
+                print('%s: gender accuracy @ 1 = %.3f (%d/%d)' % (datetime.now(), gender_accuracy, true_gender_count1, total_sample_count))
+            elif(FLAGS.mloss == 6):
+                emotion_accuracy = true_emotion_count1 / total_sample_count
                 print('%s: emotion accuracy @ 1 = %.3f (%d/%d)' % (datetime.now(), emotion_accuracy, true_emotion_count1, total_sample_count))
 
 
@@ -168,9 +177,13 @@ def evaluate(run_dir):
         with open(input_file, 'r') as f:
             md = json.load(f)
 
-        eval_data = FLAGS.eval_data == 'valid'
+        if FLAGS.eval_data == 'valid' or FLAGS.eval_data == 'eval':
+            eval_data = 1
+        else:
+            eval_data = 0
+        #eval_data = FLAGS.eval_data == 'valid'
         num_eval = md['%s_counts' % FLAGS.eval_data]
-
+        print(num_eval)
         model_fn = select_model(FLAGS.model_type)
 
 
@@ -197,7 +210,7 @@ def evaluate(run_dir):
                 eval_once(saver, summary_writer, summary_op, logits, labels, num_eval)
                 #if FLAGS.run_once:
                 #    break
-                time.sleep(FLAGS.eval_interval_secs)
+                #time.sleep(FLAGS.eval_interval_secs)
 
                 
 def main(argv=None):  # pylint: disable=unused-argument
